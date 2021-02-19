@@ -221,20 +221,55 @@ parallel --jobs 4 "rm indiv_genes/{1}_aln.fasta" ::: MDV000.5 MDV002 MDV003.e.1 
 
 # c. Find out which orfs have at least a 10% overlap among all the sequences in the alignment. Use the custom made script percent_overlap_orfs.py , from this directory: /Users/edimopoulos/Marek-Steven/Capture_Data/BEAST_seq_prep_dir
 
-python scripts/percent_overlap_orfs.py `ls indiv_genes/*_aln.fasta`
+python scripts/percent_overlap_orfs.py coding `ls indiv_genes/*_aln.fasta`
 
 
 # d. Use seqtk to concatenate all the sequences together. Run this command from this folder: /Users/edimopoulos/Marek-Steven/Capture_Data/BEAST_seq_prep_dir
 
 mkdir BEAST_partitions
 
-seqkit concat `cat selected_orfs.txt` > BEAST_partitions/MDV_CDS.fasta
+seqkit concat `cat selected_orfs_coding.txt` > BEAST_partitions/MDV_CDS.fasta
+
+
+
+# 11) Find the intragenic/non-coding regions of the genome. 
+
+
+# a. merge all the expanded ORFs into overlapping regions 
+
+# We use the initial bed file to find the total coding regions
+
+bedtools merge -i bed_files/MDV_gene_loci.bed > bed_files/MDV_gene_merged_loci_tmp.bed
+
+# a1. find the complements of the merged coding regions 
+
+cat ref_genome/EF523390.1_mask.fasta.fai | cut -f 1-2 > bed_files/EF523390.1_mask_gen_file.txt
+
+bedtools complement -i bed_files/MDV_gene_merged_loci_tmp.bed -g bed_files/EF523390.1_mask_gen_file.txt > bed_files/MDV_gene_non_coding.bed
+
+python scripts/fix_bedtools_coord.py bed_files/MDV_gene_non_coding.bed bed_files/MDV_gene_non_coding_1idx.bed
+
+# b. run the following command from this dir: /Users/edimopoulos/Marek-Steven/Capture_Data/BEAST_seq_prep_dir/genome_seq_archive/modern_genomes
+
+mkdir non_coding
+parallel --jobs 4 "seqkit subseq -r {1}:{2} aln_files/all_modern_minus_HVT_clean_masked_aln_anc_BT.fasta > non_coding/{3}_aln.fasta" ::: 1 399 1769 2139 2504 2612 3387 3948 5826 6560 7301 9131 9826 10266 10996 13121 13627 15006 15298 17543 18356 19672 21250 21961 22159 23283 25913 28903 31246 33785 35158 38005 38998 40072 41194 43410 44723 45801 50108 51116 53017 55605 57715 59561 61593 64321 66777 70544 75301 77646 78572 79051 89300 92613 94323 97013 98097 99470 101236 102658 102970 104384 104922 105882 107721 110289 111811 112668 114391 115228 119497 121065 122004 122672 123619 126956 127538 128611 129290 129567 131000 131658 132420 132804 133766 135289 136190 137608 138719 139535 139794 140147 140408 141772 142234 142834 143307 144645 152146 152599 152882 153159 153256 153526 154586 155315 156021 156952 158118 159191 160477 161030 162410 163584 165216 166337 166972 167173 167433 167661 168152 175365 176048 177203 177961 :::+ 107 569 1933 2194 2547 2806 3623 4735 6151 7051 8574 9537 9921 10683 11341 13434 13711 15201 15367 18097 18409 19838 21257 21981 22475 23335 25979 28935 31258 33882 35210 38017 39027 40110 41219 43552 44840 45925 50238 51375 53162 55786 57808 59600 61663 64394 66967 70811 75316 77737 78654 79110 89398 92909 94543 97064 98143 100125 101394 102876 103528 104693 105079 106013 107861 110526 111917 112812 114394 115228 119642 121193 122170 123026 124098 127106 127628 128941 129374 129880 131345 132075 132515 133209 135039 135781 136517 138394 138948 139729 139837 140202 140572 141942 142584 143162 144317 145000 152213 152704 152932 153192 153393 154028 154774 155480 156309 157061 158343 159267 160585 161212 162515 163699 165994 166839 167109 167206 167483 167766 168219 175720 177058 177531 178245 :::+ Intragenic_1 Intragenic_2 Intragenic_3 Intragenic_4 Intragenic_5 Intragenic_6 Intragenic_7 Intragenic_8 Intragenic_9 Intragenic_10 Intragenic_11 Intragenic_12 Intragenic_13 Intragenic_14 Intragenic_15 Intragenic_16 Intragenic_17 Intragenic_18 Intragenic_19 Intragenic_20 Intragenic_21 Intragenic_22 Intragenic_23 Intragenic_24 Intragenic_25 Intragenic_26 Intragenic_27 Intragenic_28 Intragenic_29 Intragenic_30 Intragenic_31 Intragenic_32 Intragenic_33 Intragenic_34 Intragenic_35 Intragenic_36 Intragenic_37 Intragenic_38 Intragenic_39 Intragenic_40 Intragenic_41 Intragenic_42 Intragenic_43 Intragenic_44 Intragenic_45 Intragenic_46 Intragenic_47 Intragenic_48 Intragenic_49 Intragenic_50 Intragenic_51 Intragenic_52 Intragenic_53 Intragenic_54 Intragenic_55 Intragenic_56 Intragenic_57 Intragenic_58 Intragenic_59 Intragenic_60 Intragenic_61 Intragenic_62 Intragenic_63 Intragenic_64 Intragenic_65 Intragenic_66 Intragenic_67 Intragenic_68 Intragenic_69 Intragenic_70 Intragenic_71 Intragenic_72 Intragenic_73 Intragenic_74 Intragenic_75 Intragenic_76 Intragenic_77 Intragenic_78 Intragenic_79 Intragenic_80 Intragenic_81 Intragenic_82 Intragenic_83 Intragenic_84 Intragenic_85 Intragenic_86 Intragenic_87 Intragenic_88 Intragenic_89 Intragenic_90 Intragenic_91 Intragenic_92 Intragenic_93 Intragenic_94 Intragenic_95 Intragenic_96 Intragenic_97 Intragenic_98 Intragenic_99 Intragenic_100 Intragenic_101 Intragenic_102 Intragenic_103 Intragenic_104 Intragenic_105 Intragenic_106 Intragenic_107 Intragenic_108 Intragenic_109 Intragenic_110 Intragenic_111 Intragenic_112 Intragenic_113 Intragenic_114 Intragenic_115 Intragenic_116 Intragenic_117 Intragenic_118 Intragenic_119 Intragenic_120 Intragenic_121 Intragenic_122 Intragenic_123 Intragenic_124 Intragenic_125
+
+# c. Find out which intragenic regions have at least a 10% overlap among all the sequences in the alignment
+
+python scripts/percent_overlap_orfs.py non_coding `ls non_coding/*_aln.fasta`
+
+# d. Use seqtk to concatenate all the sequences together. Run this command from this folder: /Users/edimopoulos/Marek-Steven/Capture_Data/BEAST_seq_prep_dir
+
+seqkit concat `cat selected_orfs_non_coding.txt` > BEAST_partitions/MDV_non_coding.fasta
 
 
 
 
+# 12) Partition MDV alignments for BEAST 
 
-
+python ../../../codonextract.py ./MDV-CDS.fasta > codon1pos.fasta 
+python ../../../codonextract.py ./MDV-CDS.fasta > codon2pos.fasta 
+python ../../../codonextract.py ./MDV-CDS.fasta > codon3pos.fasta
 
 
 

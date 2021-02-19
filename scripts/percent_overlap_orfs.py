@@ -2,7 +2,8 @@ from Bio import SeqIO
 from sys import argv
 
 script = argv[0]
-input_files = argv[1:]
+regions = argv[1]
+input_files = argv[2:]
 
 files_to_keep = []
 
@@ -25,7 +26,11 @@ for file in input_files:
 	if all(value >= 0.10 for value in record_nucleotide_dict.values()):
 		files_to_keep.append(file)
 
-with open('selected_orfs.txt', 'w') as fout:
-	print("\n".join(files_to_keep), file=fout)
+if regions == 'coding':
+    with open('selected_orfs_coding.txt', 'w') as fout:
+	    print("\n".join(files_to_keep), file=fout)
+elif regions == 'non_coding':
+    with open('selected_orfs_non_coding.txt', 'w') as fout:
+            print("\n".join(files_to_keep), file=fout)
 
 print(len(files_to_keep))
