@@ -267,11 +267,37 @@ seqkit concat `cat selected_orfs_non_coding.txt` > BEAST_partitions/MDV_non_codi
 
 # 12) Partition MDV alignments for BEAST 
 
-python ../../../codonextract.py ./MDV-CDS.fasta > codon1pos.fasta 
-python ../../../codonextract.py ./MDV-CDS.fasta > codon2pos.fasta 
-python ../../../codonextract.py ./MDV-CDS.fasta > codon3pos.fasta
+python scripts/codonextract.py BEAST_partitions/MDV_CDS.fasta 1 > BEAST_partitions/codon1pos.fasta 
+python scripts/codonextract.py BEAST_partitions/MDV_CDS.fasta 2 > BEAST_partitions/codon2pos.fasta 
+python scripts/codonextract.py BEAST_partitions/MDV_CDS.fasta 3 > BEAST_partitions/codon3pos.fasta
 
 
+# 13) Run BEAST 1 - NO PMD, uniform clock rate based on the tree timing that Louis gave me
+
+
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 123456789 GTR-SKY-RELAXED-NONPMD-123456789.xml &> log-GTR-SKY-RELAXED-NONPMD-123456789.txt &
+
+disown 
+
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 543219876 GTR-SKY-RELAXED-NONPMD-543219876.xml &> log-GTR-SKY-RELAXED-NONPMD-543219876.txt &
+
+disown 
+
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 987654321 GTR-SKY-RELAXED-NONPMD-987654321.xml &> log-GTR-SKY-RELAXED-NONPMD-987654321.txt &
+
+disown 
+
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 123456789 GTR-SKY-STRICT-NONPMD-123456789.xml &> log-GTR-SKY-STRICT-NONPMD-123456789.txt &
+
+disown 
+
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 543219876 GTR-SKY-STRICT-NONPMD-543219876.xml &> log-GTR-SKY-STRICT-NONPMD-543219876.txt &
+
+disown 
+
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 987654321 GTR-SKY-STRICT-NONPMD-987654321.xml &> log-GTR-SKY-STRICT-NONPMD-987654321.txt &
+
+disown 
 
 
 
