@@ -275,29 +275,18 @@ python scripts/codonextract.py BEAST_partitions/MDV_CDS.fasta 3 > BEAST_partitio
 # 13) Run BEAST 1 - NO PMD, uniform clock rate based on the tree timing that Louis gave me
 
 
-java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 123456789 GTR-SKY-RELAXED-NONPMD-123456789.xml &> log-GTR-SKY-RELAXED-NONPMD-123456789.txt &
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 5 -seed 12345 gtr_sklyl_relaxed_12345.xml &> log-gtr_skyl_relaxed_12345.txt &
 
-disown 
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 5 -seed 54321 gtr_sklyl_relaxed_54321.xml &> log-gtr_skyl_relaxed_54321.txt &
 
-java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 543219876 GTR-SKY-RELAXED-NONPMD-543219876.xml &> log-GTR-SKY-RELAXED-NONPMD-543219876.txt &
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 5 -seed 98765 gtr_sklyl_relaxed_98765.xml &> log-gtr_skyl_relaxed_98765.txt &
 
-disown 
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 5 -seed 12345 gtr_sklyl_strict_12345.xml &> log-gtr_skyl_strict_12345.txt &
 
-java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 987654321 GTR-SKY-RELAXED-NONPMD-987654321.xml &> log-GTR-SKY-RELAXED-NONPMD-987654321.txt &
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 5 -seed 54321 gtr_sklyl_strict_54321.xml &> log-gtr_skyl_strict_54321.txt &
 
-disown 
+java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 5 -seed 98765 gtr_sklyl_strict_98765.xml &> log-gtr_skyl_strict_98765.txt &
 
-java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 123456789 GTR-SKY-STRICT-NONPMD-123456789.xml &> log-GTR-SKY-STRICT-NONPMD-123456789.txt &
-
-disown 
-
-java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 543219876 GTR-SKY-STRICT-NONPMD-543219876.xml &> log-GTR-SKY-STRICT-NONPMD-543219876.txt &
-
-disown 
-
-java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/beast.jar -threads 2 -seed 987654321 GTR-SKY-STRICT-NONPMD-987654321.xml &> log-GTR-SKY-STRICT-NONPMD-987654321.txt &
-
-disown 
 
 
 
