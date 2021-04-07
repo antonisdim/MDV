@@ -290,20 +290,62 @@ java -Djava.library.path=/usr/local/lib/ -jar /home/antony/bin/BEASTv1.10.4/lib/
 
 
 
+# 14) Build alignments for MLE trees with HVT as an outgroup BUT with no Ts 
 
 
+# remove Ts from the pileup files 
+
+mkdir tv_only_pileup_fastas
+parallel --jobs 10 "python scripts/remove_ts.py ref_genome/EF523390.1_mask.fasta pileup_fastas/{1}.fasta tv_only_pileup_fastas/{1}_tv_only.fasta" ::: OL1008 OL1099 OL1128 OL1214 OL1231 OL1385 OL1389 OL1584 OL1585 OL1599 OL1934 OL1936 OL1984 OL1986 OL1987 OL1999 OL2178 OL2267 OL2268 OL2272
 
 
+# Start adding the ancient sequences 
+
+# FOR A MLE TREE WITH 11 ANCIENT SEQUENCES
+
+mkdir aln_only_tv
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL1099_tv_only.fasta aln_files/all_modern_plus_HVT_clean_masked_aln.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_1anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_1anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL1385_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_1anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_2anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_2anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL1389_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_2anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_3anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_3anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL1986_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_3anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_4anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_4anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL2272_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_4anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_5anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_5anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL1599_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_5anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_6anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_6anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL1934_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_6anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_7anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_7anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL1936_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_7anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_8anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_8anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL1984_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_8anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_9anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_9anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL1987_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_9anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_10anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_10anc_tv_only.txt 
+
+mafft --maxiterate 1000 --thread 5 --nwildcard --add tv_only_pileup_fastas/OL2178_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_10anc_tv_only.fasta 1> aln_only_tv/all_modern_plus_HVT_clean_masked_aln_11anc_tv_only.fasta 2> aln_only_tv/log-all_modern_plus_HVT_clean_masked_aln_11anc_tv_only.txt 
+
+cp aln_only_tv/all_modern_plus_HVT_clean_masked_aln_11anc_tv_only.fasta  aln_only_tv/all_modern_plus_HVT_clean_masked_aln_anc_MLE_tv_only.fasta 
+
+# cleanup the intermediate files and the logs
+rm aln_only_tv/all_modern_plus_HVT_clean_masked_aln_1anc_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_2anc_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_3anc_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_4anc_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_5anc_tv_only.fasta
+rm aln_only_tv/all_modern_plus_HVT_clean_masked_aln_6anc_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_7anc_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_8anc_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_9anc_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_10anc_tv_only.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_11anc_tv_only.fasta
+rm aln_only_tv/log*txt
+
+mkdir MLE_trees_only_tv
+
+raxmlHPC-PTHREADS -f a -T 10 -x 12345 -k -# 100 -p 12345 -m GTRGAMMA -o NC_002641.1 -s aln_only_tv/all_modern_plus_HVT_clean_masked_aln_anc_MLE_tv_only.fasta -n all_modern_plus_HVT_clean_masked_aln_anc_MLE_tv_only -w /media/jbod/home/antony/Marek-Capture/masked_data/NEW_ANAL_2021/MLE_trees_only_tv &> MLE_trees_only_tv/log-make_RAxML_TREE.txt &
 
 
+# OR
 
+python scripts/remove_ts.py aln_files/all_modern_plus_HVT_clean_masked_aln_anc_MLE.fasta aln_only_tv/all_modern_plus_HVT_clean_masked_aln_anc_MLE_tv_only.fasta &> log_change_Ts_to_Ns.txt 
 
+mkdir MLE_trees_only_tv
 
-
-
-
-
-
+raxmlHPC-PTHREADS -f a -T 10 -x 12345 -k -# 100 -p 12345 -m GTRGAMMA -o NC_002641.1 -s aln_only_tv/all_modern_plus_HVT_clean_masked_aln_anc_MLE_tv_only.fasta -n all_modern_plus_HVT_clean_masked_aln_anc_MLE_tv_only -w /media/jbod/home/antony/Marek-Capture/masked_data/NEW_ANAL_2021/MLE_trees_only_tv &> MLE_trees_only_tv/log-make_RAxML_TREE.txt &
 
 
 
