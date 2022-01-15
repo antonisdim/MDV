@@ -185,10 +185,15 @@ merged_bams/OL2272_adRm_sorted_rmdup_m.bam
 
 # SFS calculation 
 
-angsd -bam bam.filelist -doSaf 1 -out small -anc ../ref_genome/EF523390.1_mask.fasta -minMapQ 30 -minQ 30 -gl 2 -fold 1
+angsd -bam SFS/bam.filelist -doSaf 1 -out SFS/small -anc ref_genome/EF523390.1_mask.fasta -minMapQ 30 -minQ 30 -gl 2 -fold 1
 
-~/bin/angsd/misc/realSFS small.saf.idx -fold 1 -maxIter 100 -P 4 
+~/bin/angsd/misc/realSFS SFS/small.saf.idx -fold 1 -maxIter 100 -P 4 > SFS/small.sfs
 
+# SFS calculation - no transitions 
+
+angsd -bam SFS/bam.filelist -doSaf 1 -out SFS/small_no_ts -anc ref_genome/EF523390.1_mask.fasta -minMapQ 30 -minQ 30 -gl 2 -fold 1 -noTrans 1
+
+~/bin/angsd/misc/realSFS SFS/small_no_ts.saf.idx -fold 1 -maxIter 100 -P 4 > SFS/small_no_ts.sfs
 
 # mapDamage on the merged bam files 
 

@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+__author__ = "Evangelos A. Dimopoulos"
+__copyright__ = "Copyright 2021, University of Oxford"
+__email__ = "antonisdim41@gmail.com"
+__license__ = "MIT"
+
+import os
+
+from scripts.utilities import REF_GENOME_TABLE, OUT_GENOME_TABLE
+
+
+include: "rules/snp_calling.smk"
+
+
+rule all:
+    input:
+        "gatk_mdv/mdv_cluster_all_SNP_filter_table.tsv",
+        "gatk_mdv/mdv_cluster_all_sfs.pdf"
