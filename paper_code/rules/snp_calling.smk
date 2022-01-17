@@ -8,6 +8,7 @@ __license__ = "MIT"
 
 from scripts.utilities import get_ref_genome, get_right_pathogen
 
+
 rule ref_dict:
     input:
         "refs/{accession}_mask.fasta",
@@ -23,9 +24,9 @@ rule ref_dict:
 
 rule trim_bams:
     input:
-        "merged_bams/{sample}_adRm_sorted_rmdup_m.bam"
+        "merged_bams/{sample}_adRm_sorted_rmdup_m.bam",
     output:
-        temp("merged_bams/{sample}_adRm_sorted_rmdup_m_trim.bam")
+        temp("merged_bams/{sample}_adRm_sorted_rmdup_m_trim.bam"),
     message:
         "Trimming 5 bp from each of the reads from sample {wildcards.sample} "
         "to prepare them for SNP calling."
@@ -35,12 +36,12 @@ rule trim_bams:
 
 rule fix_read_groups:
     input:
-        "merged_bams/{sample}_adRm_sorted_rmdup_m_trim.bam"
+        "merged_bams/{sample}_adRm_sorted_rmdup_m_trim.bam",
     log:
-        "trimmed_bams_snp/{sample}_fix_read_groups.log"
+        "trimmed_bams_snp/{sample}_fix_read_groups.log",
     output:
         bam=temp("trimmed_bams_snp/{sample}_adRm_sorted_rmdup_m_trim_RG.bam"),
-        bai=temp("trimmed_bams_snp/{sample}_adRm_sorted_rmdup_m_trim_RG.bam.bai")
+        bai=temp("trimmed_bams_snp/{sample}_adRm_sorted_rmdup_m_trim_RG.bam.bai"),
     message:
         "Fixing the read group headers in sample {wildcards.sample}."
     shell:
@@ -70,6 +71,7 @@ rule haplotype_caller:
         "--output-mode EMIT_ALL_ACTIVE_SITES --sample-ploidy 1 -ERC GVCF "
         "--do-not-run-physical-phasing true) 2> {log}"
 
+
 def get_cluster_gvcfs(wildcards):
     """Get the samples belonging to a cluster for alignments"""
 
@@ -79,7 +81,8 @@ def get_cluster_gvcfs(wildcards):
     ref = get_ref_genome(wildcards)
 
     for sample in samples_list:
-        input_paths.append(f"gatk_{wildcards.pathogen}/{sample}_ref_{ref}.g.vcf.gz")
+        if "OL" in sample:
+            input_paths.append(f"gatk_{wildcards.pathogen}/{sample}_ref_{ref}.g.vcf.gz")
 
     return input_paths
 

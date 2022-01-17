@@ -39,7 +39,7 @@ def get_right_pathogen(wildcards, checkpoints):
     patho_samples = samples[(samples["Species"] == species)]
 
     # check what cluster if necessary
-    if hasattr(wildcards, "cluster") and (wildcards.cluster != 'all'):
+    if hasattr(wildcards, "cluster") and (wildcards.cluster != "all"):
         patho_samples = patho_samples[patho_samples["Cluster"] == wildcards.cluster]
 
     inputs_all = []
