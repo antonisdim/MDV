@@ -9,6 +9,7 @@ __license__ = "MIT"
 MIN_FRAG_LEN = 0
 MAX_FRAG_LEN = 1000
 
+
 rule bowtie_index_accession:
     input:
         "refs/{accession}_mask.fasta",
@@ -45,11 +46,9 @@ rule bowtie_aln_fasta:
     message:
         "Aligning the reads from modern sample {wildcards.sample} against ref genome {wildcards.accession}."
     shell:
-        "(bowtie2 -f --time --no-unal --no-mixed --threads {threads} -x {params.basename} -U {input.fasta} | "
+        "(bowtie2 -f --time --no-unal --threads {threads} -x {params.basename} -U {input.fasta} | "
         "samtools sort -O bam -o {output.bam_file} && samtools index {output.bam_file}) 2> {log}"
 
-
-# todo add rule to align the raw modern data, maybe modify the samples.tsv file also with the help of two input functions, one for fasta one for fastq
 
 rule bowtie_align_accession_paired_end:
     input:
@@ -69,10 +68,6 @@ rule bowtie_align_accession_paired_end:
     conda:
         "../envs/bowtie2.yaml"
     shell:
-        "( bowtie2 --time --no-unal --no-mixed --threads {threads} "
-        "-I {MIN_FRAG_LEN} -X {MAX_FRAG_LEN} -x {params.basename} "
-        "-1 {input.fastq_r1} -2 {input.fastq_r2} "
-        "| samtools sort -O bam -o {output.bam_file} && samtools index {output.bam_file} "
-        ") 2> {log}"
-
-
+        "( bowtie2 --time --no-unal --threads {threads} -I {MIN_FRAG_LEN} -X {MAX_FRAG_LEN} -x {params.basename} "
+        "-1 {input.fastq_r1} -2 {input.fastq_r2} | samtools sort -O bam -o {output.bam_file} && "
+        "samtools index {output.bam_file} ) 2> {log}"

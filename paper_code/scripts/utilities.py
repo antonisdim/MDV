@@ -58,6 +58,9 @@ def get_ref_genome(wildcards):
         sep="\t",
     )
 
+    if not hasattr(wildcards, "cluster"):
+        wildcards.cluster = "all"
+
     return ref_genomes.loc[
         ref_genomes["Cluster"] == wildcards.cluster, "Accession"
     ].to_list()[0]
@@ -70,6 +73,9 @@ def get_out_genome(wildcards):
         OUT_GENOME_TABLE,
         sep="\t",
     )
+
+    if not hasattr(wildcards, "cluster"):
+        wildcards.cluster = "all"
 
     return ref_genomes.loc[
         ref_genomes["Cluster"] == wildcards.cluster, "Accession"
