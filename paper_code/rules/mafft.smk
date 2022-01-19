@@ -110,5 +110,53 @@ rule mafft_modern:
     threads: workflow.cores
     shell:
         "cat {input} > {output.non_aln} &&"
+        "mafft --maxiterate 1000 --thread {threads} --nwildcard {output.non_aln} 1> {output.aln} 2> {log} && "
+        "sed -i 's/ Meleagrid herpesvirus 1, complete genome//g' {output.aln}"
+
+
+rule mafft_beast:
+    input:
+        mod_aln="aln_{pathogen}/mdv_modern_plus_HVT_aln.fasta",
+        beast_anc=get_ancient_seqs_beast,
+    log:
+        "aln_{pathogen}/mdv_mod_anc_plus_HVT_aln_BEAST.log",
+    output:
+        "aln_{pathogen}/mdv_mod_anc_plus_HVT_aln_BEAST.fasta",
+    message:
+        "Adding the ancient genomes for the BEAST MLE tree alignment."
+    threads: workflow.cores
+    shell:
+        "(cp {input.mod_aln} aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_0.fasta && "
+        "count=0 && "
+        "for seq in {input.beast_anc}; "
+        "do res=$((count+1)); "
         "mafft --maxiterate 1000 --thread {threads} --nwildcard "
-        "{output.non_aln} 1> {output.aln} 2> {log}"
+        "--add $seq aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_${{count}}.fasta  1> "
+        "aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_${{res}}.fasta; "
+        "count=$((count+1)); done && "
+        "mv aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_${{count}}.fasta {output} && "
+        "for tmp in aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_*.fasta; do unlink $tmp; done) 2> {log}"
+
+
+rule mafft_mle:
+    input:
+        beast_aln="aln_{pathogen}/mdv_mod_anc_plus_HVT_aln_BEAST.fasta",
+        mle_anc=get_ancient_seqs_mle,
+    log:
+        "aln_{pathogen}/mdv_mod_anc_plus_HVT_aln_MLE.log",
+    output:
+        "aln_{pathogen}/mdv_mod_anc_plus_HVT_aln_MLE.fasta",
+    message:
+        "Adding the ancient genomes for the RAxML MLE tree alignment."
+    threads: workflow.cores
+    shell:
+        "(cp {input.beast_aln} aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_0.fasta && "
+        "count=0 && "
+        "for seq in {input.mle_anc}; "
+        "do res=$((count+1)); "
+        "mafft --maxiterate 1000 --thread {threads} --nwildcard "
+        "--add $seq aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_${{count}}.fasta  1> "
+        "aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_${{res}}.fasta; "
+        "count=$((count+1)); done && "
+        "mv aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_${{count}}.fasta {output} && "
+        "for tmp in aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_*.fasta; do unlink $tmp; done) 2> {log}"
