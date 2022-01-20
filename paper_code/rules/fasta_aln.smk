@@ -160,3 +160,15 @@ rule mafft_mle:
         "count=$((count+1)); done && "
         "mv aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_${{count}}.fasta {output} && "
         "for tmp in aln_{wildcards.pathogen}/mdv_mod_anc_plus_HVT_aln_tmp_*.fasta; do unlink $tmp; done) 2> {log}"
+
+
+rule beast_aln:
+    input:
+        modern=get_modern_seqs_no_hvt,
+        ancient=get_ancient_seqs_beast,
+    output:
+        "aln_{pathogen}/mdv_mod_anc_no_HVT_aln_BEAST.fasta",
+    message:
+        "Creating multifasta alignment file for BEAST."
+    shell:
+        "cat {input.modern} {input.ancient} > {output}"
