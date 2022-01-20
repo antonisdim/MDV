@@ -81,7 +81,6 @@ def get_ancient_seqs_mle(wildcards):
     """Get MLE sequences"""
 
     input_paths = []
-
     ref = get_ref_genome(wildcards)
 
     ncounts = checkpoints.count_fasta_n.get(pathogen=wildcards.pathogen)

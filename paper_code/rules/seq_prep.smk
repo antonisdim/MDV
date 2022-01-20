@@ -67,3 +67,80 @@ checkpoint count_fasta_n:
         "Calculating the percentage of Ns in the consensus clean and masked fasta sequences."
     shell:
         "seqtk comp {input} | column -t | awk '{{print $1\"\t\"$9/$2*100}}' > {output}"
+
+
+checkpoint remove_orf_overlap:
+    input:
+        "aux_files/{pathogen}_gene_loci.bed",
+    output:
+        "aux_files/{pathogen}_gene_loci_no_overlap.bed",
+    message:
+        "Removing overlapping ORF regions from the MDV genome."
+    script:
+        "../scripts/remove_orf_overlap.py"
+
+
+rule indiv_genes:
+    input:
+        "aln_{pathogen}/mdv_mod_anc_no_HVT_aln_BEAST.fasta",
+    output:
+        "genes_{pathogen}/{gene}_{start}_{end}_aln.fasta",
+    message:
+        "Exatracting the alignments for genomic region {wildcards.gene} "
+        "from {wildcards.start} to {wildcards.end}."
+    shell:
+        "seqkit subseq -r {wildcards.start}:{wildcards.end} {input} > {output}"
+
+
+rule reverse_comp:
+    input:
+        "genes_{pathogen}/{gene}_{start}_{end}_aln.fasta",
+    output:
+        "genes_{pathogen}/{gene}_{start}_{end}_aln_rev_comp.fasta",
+    message:
+        "Fixing the directionality of ORF {wildcards.gene}."
+    shell:
+        "seqtk seq -r -l 70 {input} > {output}"
+
+
+def get_genes(wildcards):
+    """Get the paths to the correct individual gene alignments"""
+
+    orfs = checkpoints.remove_orf_overlap.get(pathogen=wildcards.pathogen)
+    bed = pd.read_csv(
+        orfs.output[0],
+        sep="\t",
+        names=["chrom", "start", "end", "gene", "score", "strand"],
+    )
+
+    forward_genes = bed[bed["strand"] == "+"]
+    reverse_genes = bed[bed["strand"] == "-"]
+
+    gene_paths = []
+
+    for key, gene in forward_genes.iterrows():
+        gene_paths.append(
+            f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln.fasta"
+        )
+
+    for key, gene in reverse_genes.iterrows():
+        gene_paths.append(
+            f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln_rev_comp.fasta"
+        )
+
+    return gene_paths
+
+
+rule percent_overlap_orfs:
+    input:
+        get_genes,
+    output:
+        "aux_files/{pathogen}_{region}_region.txt",
+    message:
+        "Selecting {wildcards.region} regions with enough sequence overlap in their alignments."
+    script:
+        "../scripts/percent_overlap_orfs.py"
+
+
+# todo from seqkit concat
+    

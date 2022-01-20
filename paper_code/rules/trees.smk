@@ -19,7 +19,9 @@ rule run_raxml_gtr_gamma:
     output:
         best_tree="trees_{pathogen}/RAxML_bestTree.{pathogen}_plus_HVT_{cluster}",
         bipartition_labels="trees_{pathogen}/RAxML_bipartitionsBranchLabels.{pathogen}_plus_HVT_{cluster}",
-        bipartition="trees_{pathogen}/RAxML_bipartitions.{pathogen}_plus_HVT_{cluster}",
+        bipartition=(
+            "trees_{pathogen}/RAxML_bipartitions.{pathogen}_plus_HVT_{cluster}"
+        ),
         bootstrap="trees_{pathogen}/RAxML_bootstrap.{pathogen}_plus_HVT_{cluster}",
         info="trees_{pathogen}/RAxML_info.{pathogen}_plus_HVT_{cluster}",
     message:
@@ -31,6 +33,3 @@ rule run_raxml_gtr_gamma:
     shell:
         "(raxmlHPC-PTHREADS -f a -x 12345 -p 12345 -T {threads} -m GTRGAMMA -k -# 100 "
         "-s {input} -n {params.basename} -w {params.workdir}) 2> {log}"
-
-
-
