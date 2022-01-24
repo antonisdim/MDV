@@ -6,7 +6,14 @@ __copyright__ = "Copyright 2022, University of Oxford"
 __email__ = "ea.dimopoulos@gmail.com"
 __license__ = "MIT"
 
-from scripts.utilities import get_ref_genome, get_right_pathogen
+from scripts.utilities import (
+    get_ref_genome,
+    get_right_pathogen,
+    get_genes,
+    get_intergenic,
+)
+
+import pandas as pd
 
 
 rule clean_from_BACs:
@@ -103,37 +110,22 @@ rule reverse_comp:
         "seqtk seq -r -l 70 {input} > {output}"
 
 
-def get_genes(wildcards):
-    """Get the paths to the correct individual gene alignments"""
+def get_genomic_regions(wildcards):
+    """Get the correct list of genomic regions"""
 
-    orfs = checkpoints.remove_orf_overlap.get(pathogen=wildcards.pathogen)
-    bed = pd.read_csv(
-        orfs.output[0],
-        sep="\t",
-        names=["chrom", "start", "end", "gene", "score", "strand"],
-    )
+    inputs = []
 
-    forward_genes = bed[bed["strand"] == "+"]
-    reverse_genes = bed[bed["strand"] == "-"]
+    if wildcards.pathogen == "coding":
+        inputs = get_genes(wildcards, checkpoints)
+    elif wildcards.pathogen == "noncoding":
+        inputs = get_intergenic(wildcards, checkpoints)
 
-    gene_paths = []
-
-    for key, gene in forward_genes.iterrows():
-        gene_paths.append(
-            f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln.fasta"
-        )
-
-    for key, gene in reverse_genes.iterrows():
-        gene_paths.append(
-            f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln_rev_comp.fasta"
-        )
-
-    return gene_paths
+    return inputs
 
 
-rule percent_overlap_orfs:
+checkpoint percent_overlap_orfs:
     input:
-        get_genes,
+        get_genomic_regions,
     output:
         "aux_files/{pathogen}_{region}_region.txt",
     message:
@@ -142,5 +134,63 @@ rule percent_overlap_orfs:
         "../scripts/percent_overlap_orfs.py"
 
 
-# todo from seqkit concat
-    
+def get_beast_regions(wildcards):
+    """Get the paths to the correct genomic regions alignments for BEAST"""
+
+    alns = checkpoints.percent_overlap_orfs.get(
+        pathogen=wildcards.pathogen, region=wildcards.region
+    )
+    paths = pd.read_csv(alns.output[0], sep="\t", names=["path"])
+
+    region_paths = []
+
+    for key, gene in paths.iterrows():
+        region_paths.append(gene["path"])
+
+    return region_paths
+
+
+rule beast_regions:
+    input:
+        get_beast_regions,
+    output:
+        "aln_{pathogen}/{pathogen}_{region}_region_aln.fasta",
+    message:
+        "Creating the alignment for the {wildcards.region} regions of {wildcards.pathogen}."
+    shell:
+        "seqkit concat {input} > {output}"
+
+
+def get_ref_fai(wildcards):
+    """Get the correct fasta index"""
+
+    ref = get_ref_genome(wildcards)
+
+    return f"refs/{ref}_mask.fasta.fai"
+
+
+rule intergenic_bed:
+    input:
+        bed="aux_files/{pathogen}_gene_loci.bed",
+        fai=get_ref_fai,
+    output:
+        temp_bed=temp("aux_files/{pathogen}_gene_merged_loci_tmp.bed"),
+        gen_file=temp("aux_files/{pathogen}_mask_gen_file.txt"),
+        bed=temp("aux_files/{pathogen}_gene_non_coding.bed"),
+    message:
+        "Finding the coordinates of the intergenic regions of the {wildcards.pathogen} genome."
+    shell:
+        "bedtools merge -i {input.bed} > {output.temp_bed} && "
+        "cat {input.fai} | cut -f 1-2 > {output.gen_file} && "
+        "bedtools complement -i {output.temp_bed} -g {output.gen_file} > {output.bed}"
+
+
+checkpoint fix_bed_coord:
+    input:
+        "aux_files/{pathogen}_gene_non_coding.bed",
+    output:
+        "aux_files/{pathogen}_gene_non_coding_1idx.bed",
+    message:
+        "Getting the intergenic regions bed file with 1-indexed coordinates for {wildcards.pathogen}."
+    script:
+        "../scripts/fix_bed_coord.py"
