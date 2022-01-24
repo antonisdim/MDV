@@ -32,5 +32,4 @@ rule all:
         "trees_mdv/RAxML_bestTree.mdv_plus_HVT_BEAST",
         "trees_mdv/RAxML_bestTree.mdv_plus_HVT_MLE",
         "aln_mdv/mdv_coding_region_aln.fasta",
-        "aux_files/mdv_gene_non_coding_1idx.bed",
         "aln_mdv/mdv_noncoding_region_aln.fasta",

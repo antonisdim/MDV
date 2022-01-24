@@ -6,12 +6,7 @@ __copyright__ = "Copyright 2022, University of Oxford"
 __email__ = "ea.dimopoulos@gmail.com"
 __license__ = "MIT"
 
-from scripts.utilities import (
-    get_ref_genome,
-    get_right_pathogen,
-    get_genes,
-    get_intergenic,
-)
+from scripts.utilities import get_ref_genome, get_right_pathogen
 
 import pandas as pd
 
@@ -87,6 +82,41 @@ checkpoint remove_orf_overlap:
         "../scripts/remove_orf_overlap.py"
 
 
+def get_ref_fai(wildcards):
+    """Get the correct fasta index"""
+
+    ref = get_ref_genome(wildcards)
+
+    return f"refs/{ref}_mask.fasta.fai"
+
+
+rule intergenic_bed:
+    input:
+        bed="aux_files/{pathogen}_gene_loci.bed",
+        fai=get_ref_fai,
+    output:
+        temp_bed=temp("aux_files/{pathogen}_gene_merged_loci_tmp.bed"),
+        gen_file=temp("aux_files/{pathogen}_mask_gen_file.txt"),
+        bed=temp("aux_files/{pathogen}_gene_non_coding.bed"),
+    message:
+        "Finding the coordinates of the intergenic regions of the {wildcards.pathogen} genome."
+    shell:
+        "bedtools merge -i {input.bed} > {output.temp_bed} && "
+        "cat {input.fai} | cut -f 1-2 > {output.gen_file} && "
+        "bedtools complement -i {output.temp_bed} -g {output.gen_file} > {output.bed}"
+
+
+checkpoint fix_bed_coord:
+    input:
+        "aux_files/{pathogen}_gene_non_coding.bed",
+    output:
+        "aux_files/{pathogen}_gene_non_coding_1idx.bed",
+    message:
+        "Getting the intergenic regions bed file with 1-indexed coordinates for {wildcards.pathogen}."
+    script:
+        "../scripts/fix_bed_coord.py"
+
+
 rule indiv_genes:
     input:
         "aln_{pathogen}/mdv_mod_anc_no_HVT_aln_BEAST.fasta",
@@ -110,22 +140,53 @@ rule reverse_comp:
         "seqtk seq -r -l 70 {input} > {output}"
 
 
-def get_genomic_regions(wildcards):
-    """Get the correct list of genomic regions"""
+def get_genes(wildcards):
+    """Get the paths to the correct individual gene alignments"""
 
-    inputs = []
+    gene_paths = []
 
-    if wildcards.pathogen == "coding":
-        inputs = get_genes(wildcards, checkpoints)
-    elif wildcards.pathogen == "noncoding":
-        inputs = get_intergenic(wildcards, checkpoints)
+    if wildcards.region == "coding":
 
-    return inputs
+        orfs = checkpoints.remove_orf_overlap.get(pathogen=wildcards.pathogen)
+        bed = pd.read_csv(
+            orfs.output[0],
+            sep="\t",
+            names=["chrom", "start", "end", "gene", "score", "strand"],
+        )
+
+        forward_genes = bed[bed["strand"] == "+"]
+        reverse_genes = bed[bed["strand"] == "-"]
+
+        for key, gene in forward_genes.iterrows():
+            gene_paths.append(
+                f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln.fasta"
+            )
+
+        for key, gene in reverse_genes.iterrows():
+            gene_paths.append(
+                f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln_rev_comp.fasta"
+            )
+
+    elif wildcards.region == "noncoding":
+
+        orfs = checkpoints.fix_bed_coord.get(pathogen=wildcards.pathogen)
+        bed = pd.read_csv(
+            orfs.output[0],
+            sep="\t",
+            names=["chrom", "start", "end"],
+        )
+
+        for key, gene in bed.iterrows():
+            gene_paths.append(
+                f"genes_{wildcards.pathogen}/{gene['chrom']}_{gene['start']}_{gene['end']}_aln.fasta"
+            )
+
+    return gene_paths
 
 
 checkpoint percent_overlap_orfs:
     input:
-        get_genomic_regions,
+        get_genes,
     output:
         "aux_files/{pathogen}_{region}_region.txt",
     message:
@@ -161,36 +222,21 @@ rule beast_regions:
         "seqkit concat {input} > {output}"
 
 
-def get_ref_fai(wildcards):
-    """Get the correct fasta index"""
+def get_intergenic(wildcards):
+    """Get the paths to the correct individual gene alignments"""
 
-    ref = get_ref_genome(wildcards)
+    orfs = checkpoints.fix_bed_coord.get(pathogen=wildcards.pathogen)
+    bed = pd.read_csv(
+        orfs.output[0],
+        sep="\t",
+        names=["chrom", "start", "end"],
+    )
 
-    return f"refs/{ref}_mask.fasta.fai"
+    gene_paths = []
 
+    for key, gene in bed.iterrows():
+        gene_paths.append(
+            f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln.fasta"
+        )
 
-rule intergenic_bed:
-    input:
-        bed="aux_files/{pathogen}_gene_loci.bed",
-        fai=get_ref_fai,
-    output:
-        temp_bed=temp("aux_files/{pathogen}_gene_merged_loci_tmp.bed"),
-        gen_file=temp("aux_files/{pathogen}_mask_gen_file.txt"),
-        bed=temp("aux_files/{pathogen}_gene_non_coding.bed"),
-    message:
-        "Finding the coordinates of the intergenic regions of the {wildcards.pathogen} genome."
-    shell:
-        "bedtools merge -i {input.bed} > {output.temp_bed} && "
-        "cat {input.fai} | cut -f 1-2 > {output.gen_file} && "
-        "bedtools complement -i {output.temp_bed} -g {output.gen_file} > {output.bed}"
-
-
-checkpoint fix_bed_coord:
-    input:
-        "aux_files/{pathogen}_gene_non_coding.bed",
-    output:
-        "aux_files/{pathogen}_gene_non_coding_1idx.bed",
-    message:
-        "Getting the intergenic regions bed file with 1-indexed coordinates for {wildcards.pathogen}."
-    script:
-        "../scripts/fix_bed_coord.py"
+    return gene_paths
