@@ -19,10 +19,12 @@ prune_tree <- function(input_tree, output_tree) {
 
   # prune the HVT root
   mle_tree_rooted_no_out <- drop.tip(mle_tree_rooted, c("NC_002641.1"),
-                                   rooted = FALSE, collapse.singles = TRUE)
+                                   rooted = TRUE, collapse.singles = TRUE)
+
+  mle_tree_rooted_no_out_bifur <- multi2di(mle_tree_rooted_no_out, random=TRUE)
 
   # write the resulting unrooted tree
-  write.nexus(mle_tree_rooted_no_out, file=output_tree)
+  write.nexus(mle_tree_rooted_no_out_bifur, file=output_tree)
 }
 
 # run the clustering function
