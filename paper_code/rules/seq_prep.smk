@@ -222,21 +222,13 @@ rule beast_regions:
         "seqkit concat {input} > {output}"
 
 
-def get_intergenic(wildcards):
-    """Get the paths to the correct individual gene alignments"""
-
-    orfs = checkpoints.fix_bed_coord.get(pathogen=wildcards.pathogen)
-    bed = pd.read_csv(
-        orfs.output[0],
-        sep="\t",
-        names=["chrom", "start", "end"],
-    )
-
-    gene_paths = []
-
-    for key, gene in bed.iterrows():
-        gene_paths.append(
-            f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln.fasta"
-        )
-
-    return gene_paths
+rule extract_codon:
+    input:
+        "aln_{pathogen}/{pathogen}_{region}_region_aln.fasta",
+    output:
+        "aln_{pathogen}/{pathogen}_{region}_region_codon{codon}_aln.fasta",
+    message:
+        "Extracting codon position {wildcards.codon} for the {wildcards.pathogen} BEAST "
+        "{wildcards.region} aln."
+    script:
+        "../scripts/extract_codon.py"

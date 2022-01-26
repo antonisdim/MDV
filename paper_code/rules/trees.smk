@@ -33,3 +33,14 @@ rule run_raxml_gtr_gamma:
     shell:
         "(raxmlHPC-PTHREADS -f a -x 12345 -p 12345 -T {threads} -m GTRGAMMA -k -# 100 "
         "-s {input} -n {params.basename} -w {params.workdir}) 2> {log}"
+
+
+rule prune_tree:
+    input:
+        "trees_{pathogen}/RAxML_bipartitions.{pathogen}_plus_HVT_{cluster}",
+    output:
+        "trees_{pathogen}/RAxML_bipartitions.{pathogen}_pruned_HVT_{cluster}",
+    message:
+        "Pruning the HVT root from the {wildcards.pathogen} tree for {wildcards.cluster}."
+    shell:
+        "Rscript scripts/prune_tree.R {input} {output}"
