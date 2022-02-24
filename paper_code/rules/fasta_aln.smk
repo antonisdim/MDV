@@ -50,7 +50,7 @@ def get_modern_seqs_no_hvt(wildcards):
     ]
 
     for key, sam in selected_mdv.iterrows():
-        if not "OL" in sam["sample"]:
+        if not "OL" in sam["sample"] and sam["sample"] != "MG518371.1":
             input_paths.append(f"seqs_mdv/{sam['sample']}_ref_{ref}_CM.fasta")
 
     return input_paths

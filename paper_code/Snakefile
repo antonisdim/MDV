@@ -31,7 +31,6 @@ rule all:
         "aln_mdv/mdv_mod_anc_no_HVT_aln_BEAST.fasta",
         "trees_mdv/RAxML_bestTree.mdv_plus_HVT_BEAST",
         "trees_mdv/RAxML_bestTree.mdv_plus_HVT_MLE",
-        "aln_mdv/mdv_coding_region_aln.fasta",
-        "aln_mdv/mdv_noncoding_region_aln.fasta",
         "trees_mdv/RAxML_bipartitions.mdv_pruned_HVT_BEAST",
+        "aln_mdv/mdv_noncoding_region_aln.fasta",
         expand("aln_mdv/mdv_coding_region_codon{pos}_aln.fasta", pos=[1, 2, 3]),

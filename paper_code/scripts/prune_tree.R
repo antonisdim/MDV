@@ -18,7 +18,7 @@ prune_tree <- function(input_tree, output_tree) {
   mle_tree_rooted <- read.tree(input_tree)
 
   # prune the HVT root
-  mle_tree_rooted_no_out <- drop.tip(mle_tree_rooted, c("NC_002641.1"),
+  mle_tree_rooted_no_out <- drop.tip(mle_tree_rooted, c("NC_002641.1", "MG518371.1"),
                                    rooted = TRUE, collapse.singles = TRUE)
 
   mle_tree_rooted_no_out_bifur <- multi2di(mle_tree_rooted_no_out, random=TRUE)
