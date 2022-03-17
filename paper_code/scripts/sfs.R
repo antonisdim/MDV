@@ -33,7 +33,7 @@ sfs <- function(snps, barplot, out_file) {
     geom_bar(stat="identity", fill="deepskyblue") +
     theme_minimal() + xlab("SNP frequency") + ylab("Number of SNPs")
 
-  pdf(barplot, paper="a4")
+  pdf(barplot, width = 10, height = 8)
   print(sfs_barplot)
   dev.off()
 
