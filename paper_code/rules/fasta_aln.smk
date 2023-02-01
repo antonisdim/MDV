@@ -10,17 +10,17 @@ __license__ = "MIT"
 from scripts.utilities import get_ref_genome, read_mdv_seq_stats
 
 EXCLUSION_LIST = [
-    "JQ806362.1 ",
-    "JQ809691.1 ",
-    "JQ809692.1 ",
-    "JQ820250.1 ",
-    "JQ836662.1 ",
+    "JQ806362.1",
+    "JQ809691.1",
+    "JQ809692.1",
+    "JQ820250.1",
+    "JQ836662.1",
     "KT833851.1",
-    "KT833852.1 ",
-    "KX290015.1 ",
-    "KX290016.1 ",
-    "NC_002229.3 ",
-    "AF147806.2 ",
+    "KT833852.1",
+    "KX290015.1",
+    "KX290016.1",
+    "NC_002229.3",
+    "AF147806.2",
     "MG518371.1",
 ]
 
@@ -59,7 +59,7 @@ def get_ancient_seqs(wildcards):
         ]
     else:
         selected_mdv = n_stats_round.loc[
-            (n_stats_round["percent"] <= 99.0) & (n_stats_round["percent"] > 80.0),
+            n_stats_round["percent"] <= 99.0,
         ]
 
     for key, sam in selected_mdv.iterrows():
@@ -76,6 +76,6 @@ rule tree_alignments:
     output:
         "aln_{pathogen}/mdv_mod_anc_{outgroup}_HVT_aln_{tree}.fasta",
     message:
-        "Creating multifasta alignment file for BEAST."
+        "Creating multifasta alignment file for {wildcards.tree}."
     shell:
         "cat {input.modern} {input.ancient} > {output}"

@@ -19,6 +19,7 @@ include: "rules/htsbox.smk"
 include: "rules/fasta_aln.smk"
 include: "rules/trees.smk"
 include: "rules/seq_stats.smk"
+include: "rules/gene_prep.smk"
 
 
 rule all:
@@ -27,12 +28,9 @@ rule all:
         "gatk_mdv/mdv_cluster_ancient_sfs.pdf",
         "aln_mdv/all_seqs_plus_HVT_CM_nstats.tsv",
         "aln_mdv/mdv_mod_anc_no_HVT_aln_MLE.fasta",
-        # "aln_mdv/mdv_modern_plus_HVT_aln.fasta",
-        # "aln_mdv/mdv_mod_anc_plus_HVT_aln_BEAST.fasta",
-        # "aln_mdv/mdv_mod_anc_plus_HVT_aln_MLE.fasta",
-        # "aln_mdv/mdv_mod_anc_no_HVT_aln_BEAST.fasta",
-        # "trees_mdv/RAxML_bestTree.mdv_plus_HVT_BEAST",
         "trees_mdv/RAxML_bestTree.mdv_no_HVT_MLE",
-        # "trees_mdv/RAxML_bipartitions.mdv_pruned_HVT_BEAST",
-        # "aln_mdv/mdv_noncoding_region_aln.fasta",
-        # expand("aln_mdv/mdv_coding_region_codon{pos}_aln.fasta", pos=[1, 2, 3]),
+        "aln_mdv/mdv_mod_anc_no_HVT_aln_BEAST.fasta",
+        "trees_mdv/RAxML_bestTree.mdv_no_HVT_BEAST",
+        "aln_mdv/mdv_noncoding_region_aln.fasta",
+        "aln_mdv/mdv_coding_region_aln.fasta",
+        expand("aln_mdv/mdv_coding_region_codon{pos}_aln.fasta", pos=[1, 2, 3]),
