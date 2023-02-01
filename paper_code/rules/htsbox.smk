@@ -20,7 +20,7 @@ rule consensus_fasta_ancient:
         "Creating the consensus fasta sequence for sample {wildcards.sample} for "
         "{wildcards.pathogen}."
     shell:
-        "(htsbox pileup -f {input.ref} -l 15 -T 5 -q 30 -Q 30 -M -s 5 {input.bam_file} 1> {output} && "
+        "(htsbox pileup -f {input.ref} -l 25 -T 5 -q 30 -Q 30 -M -s 5 {input.bam_file} 1> {output} && "
         "sed -i 's/>EF523390.1/>{wildcards.sample}/g' {output}) 2> {log}"
 
 
@@ -37,7 +37,7 @@ rule consensus_fasta_modern:
         "Creating the consensus fasta sequence for sample {wildcards.sample} for "
         "{wildcards.pathogen}."
     shell:
-        "(htsbox pileup -f {input.ref} -l 15 -M {input.bam_file} 1> {output} && "
+        "(htsbox pileup -f {input.ref} -l 25 -M {input.bam_file} 1> {output} && "
         "sed -i 's/>EF523390.1/>{wildcards.sample}/g' {output}) 2> {log}"
 
 
@@ -54,5 +54,5 @@ rule consensus_fasta_modern_raw:
         "Creating the consensus fasta sequence for sample {wildcards.sample} for "
         "{wildcards.pathogen}."
     shell:
-        "(htsbox pileup -f {input.ref} -l 15 -T 3 -q 30 -Q 30 -M -s 5 {input.bam_file} 1> {output} && "
+        "(htsbox pileup -f {input.ref} -l 25 -T 3 -q 30 -Q 30 -M -s 5 {input.bam_file} 1> {output} && "
         "sed -i 's/>EF523390.1/>{wildcards.sample}/g' {output}) 2> {log}"

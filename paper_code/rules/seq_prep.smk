@@ -38,13 +38,13 @@ rule pyfasta_split:
 def get_clean_masked_alns(wildcards):
     """Get the samples belonging to a cluster for alignments"""
 
-    samples_list = get_right_pathogen(wildcards, checkpoints)
+    samples_list = get_right_pathogen(wildcards)
     input_paths = []
 
     ref = get_ref_genome(wildcards)
 
     for sample in samples_list:
-        input_paths.append(f"seqs_mdv/{sample}_ref_{ref}_CM.fasta")
+        input_paths.append(f"seqs_{wildcards.pathogen}/{sample}_ref_{ref}_CM.fasta")
 
     return input_paths
 
@@ -58,17 +58,6 @@ rule concat_alns:
         "Concatenating all the clean masked aligned samples into a mutlifasta files."
     shell:
         "cat {input} > {output}"
-
-
-checkpoint count_fasta_n:
-    input:
-        "aln_{pathogen}/all_seqs_plus_HVT_CM.fasta",
-    output:
-        "aln_{pathogen}/all_seqs_plus_HVT_CM_nstats.tsv",
-    message:
-        "Calculating the percentage of Ns in the consensus clean and masked fasta sequences."
-    shell:
-        "seqtk comp {input} | column -t | awk '{{print $1\"\t\"$9/$2*100}}' > {output}"
 
 
 checkpoint remove_orf_overlap:
@@ -138,61 +127,6 @@ rule reverse_comp:
         "Fixing the directionality of ORF {wildcards.gene}."
     shell:
         "seqtk seq -r -l 70 {input} > {output}"
-
-
-def get_genes(wildcards):
-    """Get the paths to the correct individual gene alignments"""
-
-    gene_paths = []
-
-    if wildcards.region == "coding":
-
-        orfs = checkpoints.remove_orf_overlap.get(pathogen=wildcards.pathogen)
-        bed = pd.read_csv(
-            orfs.output[0],
-            sep="\t",
-            names=["chrom", "start", "end", "gene", "score", "strand"],
-        )
-
-        forward_genes = bed[bed["strand"] == "+"]
-        reverse_genes = bed[bed["strand"] == "-"]
-
-        for key, gene in forward_genes.iterrows():
-            gene_paths.append(
-                f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln.fasta"
-            )
-
-        for key, gene in reverse_genes.iterrows():
-            gene_paths.append(
-                f"genes_{wildcards.pathogen}/{gene['gene']}_{gene['start']}_{gene['end']}_aln_rev_comp.fasta"
-            )
-
-    elif wildcards.region == "noncoding":
-
-        orfs = checkpoints.fix_bed_coord.get(pathogen=wildcards.pathogen)
-        bed = pd.read_csv(
-            orfs.output[0],
-            sep="\t",
-            names=["chrom", "start", "end"],
-        )
-
-        for key, gene in bed.iterrows():
-            gene_paths.append(
-                f"genes_{wildcards.pathogen}/{gene['chrom']}_{gene['start']}_{gene['end']}_aln.fasta"
-            )
-
-    return gene_paths
-
-
-checkpoint percent_overlap_orfs:
-    input:
-        get_genes,
-    output:
-        "aux_files/{pathogen}_{region}_region.txt",
-    message:
-        "Selecting {wildcards.region} regions with enough sequence overlap in their alignments."
-    script:
-        "../scripts/percent_overlap_orfs.py"
 
 
 def get_beast_regions(wildcards):

@@ -75,7 +75,7 @@ rule haplotype_caller:
 def get_cluster_gvcfs(wildcards):
     """Get the samples belonging to a cluster for alignments"""
 
-    samples_list = get_right_pathogen(wildcards, checkpoints)
+    samples_list = get_right_pathogen(wildcards)
     input_paths = []
 
     ref = get_ref_genome(wildcards)
@@ -105,8 +105,6 @@ rule combine_gvcfs:
         gvcf="gatk_{pathogen}/{pathogen}_cluster_{cluster}_var_cohort.g.vcf.gz",
     message:
         "Combining GVCF files for {wildcards.pathogen} cluster {wildcards.cluster}."
-    conda:
-        "../envs/gatk.yaml"
     wrapper:
         "0.80.2/bio/gatk/combinegvcfs"
 
@@ -121,8 +119,6 @@ rule genotype_gvcfs:
         "gatk_{pathogen}/{pathogen}_cluster_{cluster}_var_joint_raw.vcf.gz",
     message:
         "Genotyping the cohort of GVCF files for {wildcards.pathogen} cluster {wildcards.cluster}."
-    conda:
-        "../envs/gatk.yaml"
     shell:
         "(gatk GenotypeGVCFs --reference {input.ref} --variant {input.gvcf} --output {output}) 2> {log}"
 
@@ -137,8 +133,6 @@ rule select_snps:
         "gatk_{pathogen}/{pathogen}_cluster_{cluster}_SNP_joint_raw.vcf.gz",
     message:
         "Slecting only the SNP variants for {wildcards.pathogen} cluster {wildcards.cluster}."
-    conda:
-        "../envs/gatk.yaml"
     shell:
         "(gatk SelectVariants --reference {input.ref} --variant {input.vcf} "
         "--output {output} --select-type-to-include SNP) 2> {log}"
@@ -154,8 +148,6 @@ rule filter_variants:
         "gatk_{pathogen}/{pathogen}_cluster_{cluster}_SNP_filtered.vcf.gz",
     message:
         "Filtering the VCF file for {wildcards.pathogen} cluster {wildcards.cluster}."
-    conda:
-        "../envs/gatk.yaml"
     shell:
         "(gatk VariantFiltration --reference {input.ref} --variant {input.vcf} --output {output} "
         '--filter-name "Q_and_DP_filter" --filter-expression "QUAL >= 30.0 && DP >= 5") 2> {log}'
@@ -171,8 +163,6 @@ rule snp_table:
         "gatk_{pathogen}/{pathogen}_cluster_{cluster}_SNP_filter_table.tsv",
     message:
         "Outputting the filtered SNPs into a table for {wildcards.pathogen} cluster {wildcards.cluster}."
-    conda:
-        "../envs/gatk.yaml"
     shell:
         "(gatk VariantsToTable --variant {input.vcf} --reference {input.ref} --output {output} "
         "--fields CHROM --fields POS --fields ID --fields QUAL --fields REF --fields ALT --fields AC "
@@ -191,7 +181,5 @@ rule sfs:
         barplot="gatk_{pathogen}/{pathogen}_cluster_{cluster}_sfs.pdf",
     message:
         "Calculating the SFS for {wildcards.pathogen} cluster {wildcards.cluster}."
-    conda:
-        "../envs/pegas.yaml"
     shell:
         "(Rscript scripts/sfs.R {input} {output.barplot} {output.table}) &> {log}"

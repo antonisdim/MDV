@@ -26,7 +26,7 @@ def read_sample_list():
     return samples
 
 
-def get_right_pathogen(wildcards, checkpoints):
+def get_right_pathogen(wildcards):
     """Get the E. coli samples"""
 
     samples = read_sample_list()
@@ -80,3 +80,13 @@ def get_out_genome(wildcards):
     return ref_genomes.loc[
         ref_genomes["Cluster"] == wildcards.cluster, "Accession"
     ].to_list()[0]
+
+
+def read_mdv_seq_stats(wildcards, checkpoints):
+    """Utility function to read the output of checkpoints"""
+
+    ncounts = checkpoints.count_fasta_n.get(pathogen=wildcards.pathogen)
+    n_stats = pd.read_csv(ncounts.output[0], sep="\t", names=["sample", "percent"])
+    n_stats_round = n_stats.round(0).sort_values(["percent"], ascending=False)
+
+    return n_stats_round
