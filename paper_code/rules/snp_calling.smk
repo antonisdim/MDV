@@ -168,7 +168,7 @@ rule snp_table:
         "--fields CHROM --fields POS --fields ID --fields QUAL --fields REF --fields ALT --fields AC "
         "--fields AF --fields DP --fields HET --fields HOM-REF --fields HOM-VAR --fields NO-CALL --fields VAR "
         "--fields NSAMPLES --fields NCALLED --fields MULTI-ALLELIC --split-multi-allelic "
-        "--show-filtered) 2> {log}"
+        "--show-filtered --genotype-fields AF --genotype-fields DP) 2> {log}"
 
 
 rule sfs:
